@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Advanced CGPA Calculator</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #f8f9fa;
+      font-family: 'Arial', sans-serif;
+    }
+    .container {
+      margin-top: 50px;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .subject-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .subject-row input {
+      width: 30%;
+    }
+    #result {
+      margin-top: 20px;
+    }
+    .add-btn, .remove-btn {
+      cursor: pointer;
+    }
+    .invalid-feedback {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2 class="text-center">CGPA Calculator</h2>
+    <div id="subjects-container">
+      <div class="subject-row" id="subject-row-1">
+        <input type="text" class="form-control" id="subject1-name" placeholder="Subject Name">
+        <input type="number" class="form-control" id="subject1-credits" placeholder="Credits" min="0">
+        <input type="text" class="form-control" id="subject1-grade" placeholder="Grade (e.g., AA)">
+        <span class="remove-btn text-danger" onclick="removeSubject('subject-row-1')">&times;</span>
+      </div>
+    </div>
+    <div class="text-center">
+      <button class="btn btn-success add-btn" onclick="addSubject()">Add Subject</button>
+    </div>
+    <button class="btn btn-primary btn-block mt-4" onclick="calculateCGPA()">Calculate CGPA</button>
+    <div id="result" class="alert alert-info text-center" role="alert"></div>
+  </div>
+
+  <!-- Bootstrap JS and dependencies -->
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+  <script>
+    let subjectCount = 1;
+    const gradePoints = {
+      'AA': 10,
+      'AB': 9,
+      'BB': 8,
+      'BC': 7,
+      'CC': 6,
+      'CD': 5,
+      'DD': 4,
+      'FP': 0
+    };
+
+    function addSubject() {
+      subjectCount++;
+      const subjectRow = document.createElement('div');
+      subjectRow.className = 'subject-row';
+      subjectRow.id = `subject-row-${subjectCount}`;
+      subjectRow.innerHTML = `
+        <input type="text" class="form-control" id="subject${subjectCount}-name" placeholder="Subject Name">
+        <input type="number" class="form-control" id="subject${subjectCount}-credits" placeholder="Credits" min="0">
+        <input type="text" class="form-control" id="subject${subjectCount}-grade" placeholder="Grade (e.g., AA)">
+        <span class="remove-btn text-danger" onclick="removeSubject('subject-row-${subjectCount}')">&times;</span>
+      `;
+      document.getElementById('subjects-container').appendChild(subjectRow);
+    }
+
+    function removeSubject(id) {
+      const element = document.getElementById(id);
+      element.parentNode.removeChild(element);
+    }
+
+    function calculateCGPA() {
+      let totalPoints = 0;
+      let totalCredits = 0;
+      let validInput = true;
+
+      for (let i = 1; i <= subjectCount; i++) {
+        const name = document.getElementById(`subject${i}-name`);
+        const credits = document.getElementById(`subject${i}-credits`);
+        const grade = document.getElementById(`subject${i}-grade`);
+
+        if (name && credits && grade) {
+          const creditValue = parseFloat(credits.value);
+          const gradeValue = grade.value.toUpperCase();
+
+          if (gradePoints.hasOwnProperty(gradeValue) && !isNaN(creditValue) && creditValue > 0) {
+            totalPoints += gradePoints[gradeValue] * creditValue;
+            totalCredits += creditValue;
+          } else {
+            validInput = false;
+            break;
+          }
+        }
+      }
+
+      if (validInput && totalCredits > 0) {
+        const cgpa = (totalPoints / totalCredits).toFixed(2);
+        document.getElementById('result').innerText = `Your CGPA is: ${cgpa}`;
+      } else {
+        document.getElementById('result').innerText = 'Please enter valid credits and grades for all subjects.';
+      }
+    }
+  </script>
+</body>
+</html>
